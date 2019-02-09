@@ -1,0 +1,22 @@
+{
+  "name": "csgo-discord-bot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.ts",
+  "scripts": {
+    "build": "webpack --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^11.4.2",
+    "dotenv": "^6.2.0",
+    "hltv": "^2.12.2",
+    "typescript": "^3.3.3"
+  },
+  "devDependencies": {
+    "@types/node": "^10.12.24",
+    "ts-node": "^8.0.2"
+  }
+}
