@@ -9,6 +9,8 @@ const client = new Discord.Client();
 
 const HLTV_URL = "https://www.hltv.org/";
 
+const STAR_EMOJI = "⭐";
+
 // TODO: npm install sharp?
 
 client.on("ready", () => console.log(`Logged in as ${client.user.tag}`));
@@ -20,17 +22,34 @@ client.on("message", async (message) => {
 		const matches = await HLTV.getMatches();
 		const liveMatches = await Promise.all(matches
 			.filter((match) => match.live)
-			.map((liveMatch) => HLTV.getMatch({ id: liveMatch.id })));
+			.map(async (match) => { 
+				const liveMatch = await HLTV.getMatch({ id: match.id });
+
+				return { stars: match.stars, ...liveMatch };
+			}));
 
 		liveMatches
 			.map((liveMatch) => {
 
 				const team1Name = (liveMatch.team1 && liveMatch.team1.name) || "Unknown";
 				const team2Name = (liveMatch.team2 && liveMatch.team2.name) || "Unknown";
-				const title = `${team1Name} vs ${team2Name}`;
+				const title = `${team1Name} vs ${team2Name}`.concat(` ${STAR_EMOJI.repeat(liveMatch.stars)}`);
+
+				const maps = liveMatch.maps.reduce((text, map) => text.concat(`**${map.name}** : ${map.result}\n`), "");
+
+				const matchBracket = liveMatch.additionalInfo ? 
+					`_${liveMatch.additionalInfo.replace("*", "")}_\n\n` :
+					"\n"
+				
+				const description = 
+					`\n\n**${liveMatch.event && liveMatch.event.name}**\n`
+					.concat(matchBracket)
+					.concat(maps)
+					.concat("\n")
+					.concat("\_____");
 
 				const embed = new RichEmbed()
-					.setDescription(liveMatch.event && liveMatch.event.name)
+					.setDescription(description)
 					.setTimestamp(new Date(liveMatch.date))
 					.setFooter("Started")
 					.setAuthor(title, "https://avatars2.githubusercontent.com/u/9454190?s=460&v=4")
@@ -42,12 +61,13 @@ client.on("message", async (message) => {
 					embed.attachFile(attachment).setImage(`attachment://test.png`);
 				}
 
-				const streamText = liveMatch.streams
+				const streamText = 
+					liveMatch.streams
 					.reduce((textSegment, stream) => {
 						const link = stream.name.toUpperCase() !== "HLTV LIVE" ? stream.link : HLTV_URL.concat(stream.link);
 						return textSegment.concat(`[${stream.name}](${link}) | `)
 					}, "")
-					.replace(/ \| $/gm, ""); // Remove the trailing pipe and spaces
+					.replace(/ \| $/gm, "") // Remove the trailing pipe and spaces
 
 				if (streamText) {
 					embed.addField("Streams", streamText);
