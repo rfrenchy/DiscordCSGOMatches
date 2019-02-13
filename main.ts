@@ -1,6 +1,5 @@
 
 import Discord, { Message, RichEmbed } from "discord.js";
-import HLTV from "hltv";
 import FullMatch from "hltv/lib/models/FullMatch";
 import Redis from "redis";
 
@@ -22,8 +21,6 @@ redisClient.on('connect', function () {
 
 const LIVE_REGEX = /!live/gmi;
 const INFO_REGEX = /!info/gmi;
-const GET_REGEX = /!get/gmi;
-
 
 export interface ILiveMatch extends FullMatch {
 	stars: number;
@@ -37,10 +34,6 @@ discordClient.on("message", async (message) => {
 		return;
 	}
 
-	// have a bunch of commands
-	// invoke each command if it thinks it should
-
-
 	if (message.isMentioned(discordClient.user)) {
 
 		if (LIVE_REGEX.test(message.content)) {
@@ -49,10 +42,6 @@ discordClient.on("message", async (message) => {
 			const liveEmbeds = await Live();
 
 			liveEmbeds.forEach((embed) => message.channel.send(embed));
-
-			// Redis example
-			// redisClient.set(`liveMatch:${index}`, team || "Unknown");
-			// redisClient.expire(`liveMatch:${index}`, 300);
 
 			return;
 		}
@@ -70,16 +59,3 @@ discordClient.on("message", async (message) => {
 })
 
 discordClient.login(process.env.BOT_TOKEN).catch((error) => console.log(error));
-
-const getLiveMatches = async (): Promise<ILiveMatch[]> => {
-	const matches = await HLTV.getMatches();
-	const liveMatches = await Promise.all(matches
-		.filter((match) => match.live)
-		.map(async (match) => {
-			const liveMatch = await HLTV.getMatch({ id: match.id });
-
-			return { stars: match.stars, ...liveMatch };
-		}));
-
-	return liveMatches;
-}
