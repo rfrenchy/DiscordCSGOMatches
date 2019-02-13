@@ -1,82 +1,85 @@
 
 import Discord, { Message, RichEmbed } from "discord.js";
-import fs from "fs";
 import HLTV from "hltv";
+import FullMatch from "hltv/lib/models/FullMatch";
+import Redis from "redis";
+
+import { createInfo } from "./info";
+import { Live } from "./src/live/Live";
 
 require('dotenv').config();
 
-const client = new Discord.Client();
+const discordClient = new Discord.Client();
 
-const HLTV_URL = "https://www.hltv.org/";
+const port = 7519;
+const host = "ec2-54-76-190-220.eu-west-1.compute.amazonaws.com"
 
-const STAR_EMOJI = "⭐";
+const redisClient = Redis.createClient(port, host, { password: process.env.REDIS_PASSWORD });
 
-// TODO: npm install sharp?
+redisClient.on('connect', function () {
+	console.log('Connected to Redis...');
+});
 
-client.on("ready", () => console.log(`Logged in as ${client.user.tag}`));
+const LIVE_REGEX = /!live/gmi;
+const INFO_REGEX = /!info/gmi;
+const GET_REGEX = /!get/gmi;
 
-client.on("message", async (message) => {
 
-	if (message.isMentioned(client.user)) {
+export interface ILiveMatch extends FullMatch {
+	stars: number;
+}
 
-		const matches = await HLTV.getMatches();
-		const liveMatches = await Promise.all(matches
-			.filter((match) => match.live)
-			.map(async (match) => { 
-				const liveMatch = await HLTV.getMatch({ id: match.id });
+discordClient.on("ready", () => console.log(`Logged in as ${discordClient.user.tag}`));
 
-				return { stars: match.stars, ...liveMatch };
-			}));
+discordClient.on("message", async (message) => {
 
-		liveMatches
-			.map((liveMatch) => {
-
-				const team1Name = (liveMatch.team1 && liveMatch.team1.name) || "Unknown";
-				const team2Name = (liveMatch.team2 && liveMatch.team2.name) || "Unknown";
-				const title = `${team1Name} vs ${team2Name}`.concat(` ${STAR_EMOJI.repeat(liveMatch.stars)}`);
-
-				const maps = liveMatch.maps.reduce((text, map) => text.concat(`**${map.name}** : ${map.result}\n`), "");
-
-				const matchBracket = liveMatch.additionalInfo ? 
-					`_${liveMatch.additionalInfo.replace("*", "")}_\n\n` :
-					"\n"
-				
-				const description = 
-					`\n\n**${liveMatch.event && liveMatch.event.name}**\n`
-					.concat(matchBracket)
-					.concat(maps)
-					.concat("\n")
-					.concat("\_____");
-
-				const embed = new RichEmbed()
-					.setDescription(description)
-					.setTimestamp(new Date(liveMatch.date))
-					.setFooter("Started")
-					.setAuthor(title, "https://avatars2.githubusercontent.com/u/9454190?s=460&v=4")
-
-				const imageUrl = `./img/csgo/${team2Name.toLowerCase()}/${team2Name.toLowerCase()}-128.png`;
-
-				if (fs.existsSync(imageUrl)) {
-					const attachment = new Discord.Attachment(imageUrl, "test.png");
-					embed.attachFile(attachment).setImage(`attachment://test.png`);
-				}
-
-				const streamText = 
-					liveMatch.streams
-					.reduce((textSegment, stream) => {
-						const link = stream.name.toUpperCase() !== "HLTV LIVE" ? stream.link : HLTV_URL.concat(stream.link);
-						return textSegment.concat(`[${stream.name}](${link}) | `)
-					}, "")
-					.replace(/ \| $/gm, "") // Remove the trailing pipe and spaces
-
-				if (streamText) {
-					embed.addField("Streams", streamText);
-				}
-
-				return embed;
-			})
-			.forEach((embed) => message.channel.send(embed));
+	if (message.author.bot) {
+		return;
 	}
+
+	// have a bunch of commands
+	// invoke each command if it thinks it should
+
+
+	if (message.isMentioned(discordClient.user)) {
+
+		if (LIVE_REGEX.test(message.content)) {
+			message.channel.send("Getting live matches...");
+
+			const liveEmbeds = await Live();
+
+			liveEmbeds.forEach((embed) => message.channel.send(embed));
+
+			// Redis example
+			// redisClient.set(`liveMatch:${index}`, team || "Unknown");
+			// redisClient.expire(`liveMatch:${index}`, 300);
+
+			return;
+		}
+
+		else if (INFO_REGEX) {
+			message.channel.send(createInfo());
+		}
+
+		else {
+			message.channel.send("Unrecognised command");
+			message.channel.send(createInfo());
+		}
+	}
+
 })
 
-client.login(process.env.BOT_TOKEN).catch((error) => console.log(error));
+discordClient.login(process.env.BOT_TOKEN).catch((error) => console.log(error));
+
+const getLiveMatches = async (): Promise<ILiveMatch[]> => {
+	const matches = await HLTV.getMatches();
+	const liveMatches = await Promise.all(matches
+		.filter((match) => match.live)
+		.map(async (match) => {
+			const liveMatch = await HLTV.getMatch({ id: match.id });
+
+			return { stars: match.stars, ...liveMatch };
+		}));
+
+	return liveMatches;
+}

@@ -1,0 +1,7 @@
+language: nodejs
+
+before_script:
+ - npm ci
+
+script:
+ - npm run start
