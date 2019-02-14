@@ -1,4 +1,4 @@
-import { ILiveMatch } from "../../main";
+import { ILiveMatch } from "../main";
 import { HLTV } from "hltv";
 
 const getLiveMatches = async (): Promise<ILiveMatch[]> => {

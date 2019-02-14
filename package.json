@@ -2,10 +2,13 @@
   "name": "csgo-discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "main.ts",
+  "main": "./src/main.js",
   "scripts": {
-    "start": "ts-node ./main.ts",
-    "test": "jest"
+    "start": "node ./src/main.js",
+    "test": "jest",
+    "build": "tsc",
+    "heroku-postbuild": "tsc",
+    "build:watch": "tsc --watch"
   },
   "keywords": [],
   "author": "",

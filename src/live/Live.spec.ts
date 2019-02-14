@@ -3,6 +3,7 @@ import { HLTV } from "hltv";
 import LiveMatch from "hltv/lib/models/LiveMatch";
 import MapSlug from "hltv/lib/enums/MapSlug";
 import FullMatch from "hltv/lib/models/FullMatch";
+import { ILiveMatch } from "../main";
 
 
 describe("A 'live' function", () => {
@@ -39,12 +40,12 @@ describe("A 'live' function", () => {
 			});
 
 			it("the star rating of the match", async () => {
-				const mockLiveOptions: Partial<LiveMatch> = {
+				const mockLiveOptions: Partial<ILiveMatch> = {
 					team1: { name: "Cloud9" }, team2: { name: "Faze" }, stars: 5
 				}
 
-				jest.spyOn(HLTV, "getMatches").mockResolvedValue([CreateMockLiveMatch(mockLiveOptions)]);
-				jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions as Partial<FullMatch>));
+				jest.spyOn(HLTV, "getMatches").mockResolvedValue([MOCK_LIVE_MATCH]);
+				jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions));
 
 				const embeds = await Live();
 				const title = embeds[0].author && embeds[0].author.name;
