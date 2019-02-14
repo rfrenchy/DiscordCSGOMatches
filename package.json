@@ -8,7 +8,7 @@
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "heroku-postbuild": "tsc"
+    "postinstall": "npm run build"
   },
   "keywords": [],
   "author": "",
