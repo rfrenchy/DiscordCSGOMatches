@@ -10,10 +10,10 @@ require('dotenv').config();
 
 const discordClient = new Discord.Client();
 
-const port = 7519;
-const host = "ec2-54-76-190-220.eu-west-1.compute.amazonaws.com"
+const port = process.env.PORT || "";
+const host = process.env.REDIS_HOST;
 
-const redisClient = Redis.createClient(port, host, { password: process.env.REDIS_PASSWORD });
+const redisClient = Redis.createClient(parseInt(port), host, { password: process.env.REDIS_PASSWORD });
 
 redisClient.on('connect', function () {
 	console.log('Connected to Redis...');
