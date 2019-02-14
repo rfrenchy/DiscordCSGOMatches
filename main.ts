@@ -10,7 +10,7 @@ require('dotenv').config();
 
 const discordClient = new Discord.Client();
 
-const port = process.env.REDIS_PORT || "";
+const port = process.env.PORT || process.env.REDIS_PORT || "";
 const host = process.env.REDIS_HOST;
 
 const redisClient = Redis.createClient(parseInt(port), host, { password: process.env.REDIS_PASSWORD });
