@@ -31,7 +31,7 @@ describe("A 'live' function", () => {
 				}
 
 				jest.spyOn(HLTV, "getMatches").mockResolvedValue([CreateMockLiveMatch(mockLiveOptions)]);
-				jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions as Partial<FullMatch>));
+				jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions));
 
 				const embeds = await Live();
 				const title = embeds[0].author && embeds[0].author.name;
@@ -84,7 +84,7 @@ const CreateMockLiveMatch = (liveMatchOptions?: Partial<LiveMatch>): LiveMatch =
 	return { ...MOCK_LIVE_MATCH, ...liveMatchOptions };
 }
 
-const CreateMockFullMatch = (fullMatchOptions?: Partial<FullMatch>): FullMatch => {
+const CreateMockFullMatch = (fullMatchOptions?: Partial<any>): any => {
 	return { ...MOCK_FULL_MATCH, ...fullMatchOptions };
 }
 
@@ -99,7 +99,7 @@ const MOCK_LIVE_MATCH: LiveMatch = {
 	live: true
 }
 
-const MOCK_FULL_MATCH: FullMatch = {
+const MOCK_FULL_MATCH: any = {
 	...MOCK_LIVE_MATCH,
 	maps: [{ name: MapSlug.Mirage, result: "win for Faze" }],
 	date: 1512312314,
