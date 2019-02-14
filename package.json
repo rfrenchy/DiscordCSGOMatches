@@ -2,7 +2,7 @@
   "name": "csgo-discord-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "./src/main.js",
+  "main": "src/main.js",
   "scripts": {
     "start": "node ./src/main.js",
     "test": "jest",
@@ -18,7 +18,9 @@
     "discord.js": "^11.4.2",
     "dotenv": "^6.2.0",
     "hltv": "^2.12.2",
-    "redis": "^2.8.0"
+    "redis": "^2.8.0",
+    "tsc": "^1.20150623.0",
+    "typescript": "^3.3.3"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
@@ -27,7 +29,5 @@
     "chai": "^4.2.0",
     "jest": "^24.1.0",
     "ts-jest": "^23.10.5",
-    "tsc": "^1.20150623.0",
-    "typescript": "^3.3.3"
   }
 }
