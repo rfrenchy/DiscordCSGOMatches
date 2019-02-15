@@ -4,8 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "node ./src/main.js",
-    "postinstall": "tsc",
+    "start": "ts-node ./src/main.ts",
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc --watch"
@@ -22,6 +21,7 @@
     "dotenv": "^6.2.0",
     "hltv": "^2.12.2",
     "redis": "^2.8.0",
+    "ts-node": "^8.0.2",
     "typescript": "^3.3.3"
   },
   "devDependencies": {
