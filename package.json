@@ -5,7 +5,7 @@
   "main": "src/main.js",
   "scripts": {
     "start": "node ./src/main.js",
-    "postinstall": "npm run build",
+    "postinstall": "tsc",
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc --watch"
