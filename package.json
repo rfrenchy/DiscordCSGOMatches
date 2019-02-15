@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "node ./src/main.js",
+    "start": "tsc && node ./src/main.js",
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc --watch"
@@ -18,7 +18,6 @@
     "dotenv": "^6.2.0",
     "hltv": "^2.12.2",
     "redis": "^2.8.0",
-    "tsc": "^1.20150623.0",
     "typescript": "^3.3.3"
   },
   "devDependencies": {
@@ -27,6 +26,7 @@
     "@types/node": "^10.12.24",
     "chai": "^4.2.0",
     "jest": "^24.1.0",
-    "ts-jest": "^23.10.5"
+    "ts-jest": "^23.10.5",
+    "typescript": "^3.3.3"
   }
 }
