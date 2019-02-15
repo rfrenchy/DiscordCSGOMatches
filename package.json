@@ -8,7 +8,7 @@
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "postinstall": "npm run build"
+    "postinstall": "tsc"
   },
   "keywords": [],
   "author": "",
