@@ -4,8 +4,8 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "start": "node ./src/main.ts",
-    "postinstall": "tsc",
+    "start": "node ./src/main.js",
+    "postinstall": "npm run build",
     "test": "jest",
     "build": "tsc",
     "build:watch": "tsc --watch"
