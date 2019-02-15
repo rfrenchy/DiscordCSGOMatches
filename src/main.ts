@@ -3,7 +3,7 @@ import Discord, { Message, RichEmbed } from "discord.js";
 import FullMatch from "hltv/lib/models/FullMatch";
 import Redis from "redis";
 
-import { createInfo } from "./info/info";
+import { createInfo } from "./info/Info";
 import { Live } from "./live/Live";
 
 require('dotenv').config();
