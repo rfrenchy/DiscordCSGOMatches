@@ -3,7 +3,7 @@ import { HLTV } from "hltv";
 import LiveMatch from "hltv/lib/models/LiveMatch";
 import MapSlug from "hltv/lib/enums/MapSlug";
 import FullMatch from "hltv/lib/models/FullMatch";
-import { ILiveMatch } from "../main";
+import { ILiveMatch } from "../../main";
 
 
 describe("A 'live' function", () => {

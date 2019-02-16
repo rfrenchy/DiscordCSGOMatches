@@ -3,8 +3,8 @@ import Discord, { Message, RichEmbed } from "discord.js";
 import FullMatch from "hltv/lib/models/FullMatch";
 import Redis from "redis";
 
-import { createInfo } from "./info/Info";
-import { Live } from "./live/Live";
+import { createInfo } from "./commands/info/Info";
+import { Live } from "./commands/live/Live";
 
 require('dotenv').config();
 
@@ -26,7 +26,9 @@ export interface ILiveMatch extends FullMatch {
 	stars: number;
 }
 
-discordClient.on("ready", () => console.log(`Logged in as ${discordClient.user.tag}`));
+discordClient.on("ready", () => {
+	console.log(`Logged in as ${discordClient.user.tag}`)
+});
 
 discordClient.on("message", async (message) => {
 
@@ -43,6 +45,10 @@ discordClient.on("message", async (message) => {
 
 			liveEmbeds.forEach((embed) => message.channel.send(embed));
 
+			if (liveEmbeds.length === 0) {
+				message.channel.send("There are currently no live matches")
+			}
+
 			return;
 		}
 
@@ -58,4 +64,6 @@ discordClient.on("message", async (message) => {
 
 })
 
-discordClient.login(process.env.BOT_TOKEN).catch((error) => console.log(error));
+const BOT_TOKEN = process.env.DEV_MODE ? process.env.BOT_TOKEN_DEV : process.env.BOT_TOKEN;
+
+discordClient.login(BOT_TOKEN).catch((error) => console.log(error));

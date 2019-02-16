@@ -1,6 +1,6 @@
-import { ICommand } from "../command/ICommand";
+// import { ICommand } from "../commands/ICommand";
 import { RichEmbed } from "discord.js";
-import { ILiveMatch } from "../main";
+import { ILiveMatch } from "../../main";
 import { HLTV } from "hltv";
 
 import MapResult from "hltv/lib/models/MapResult";
