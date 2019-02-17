@@ -1,8 +1,10 @@
 import { ILiveMatch } from "../main";
 import { HLTV } from "hltv";
+import UpcomingMatch from "hltv/lib/models/UpcomingMatch";
+import LiveMatch from "hltv/lib/models/LiveMatch";
 
-const getLiveMatches = async (): Promise<ILiveMatch[]> => {
-	const matches = await HLTV.getMatches();
+export const getLiveMatches = async (): Promise<ILiveMatch[]> => {
+	const matches = await getMatches();
 	const liveMatches = await Promise.all(matches
 		.filter((match) => match.live)
 		.map(async (match) => {
@@ -12,4 +14,8 @@ const getLiveMatches = async (): Promise<ILiveMatch[]> => {
 		}));
 
 	return liveMatches;
+}
+
+export const getMatches = async (): Promise<(UpcomingMatch | LiveMatch)[]> => {
+	return await HLTV.getMatches();
 }
