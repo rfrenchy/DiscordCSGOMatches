@@ -1,10 +1,10 @@
 import { Live } from "./Live";
 import { HLTV } from "hltv";
+import { ILiveMatch } from "../../main";
+
 import LiveMatch from "hltv/lib/models/LiveMatch";
 import MapSlug from "hltv/lib/enums/MapSlug";
 import FullMatch from "hltv/lib/models/FullMatch";
-import { ILiveMatch } from "../../main";
-
 
 describe("A 'live' function", () => {
 	describe("returns a RichEmbed", () => {
@@ -74,6 +74,34 @@ describe("A 'live' function", () => {
 				expect(mapField.value).toContain(`**${MapSlug.Cache}** : `);
 				expect(mapField.value).toContain(`**${MapSlug.Cobblestone}** : `);
 				expect(mapField.value).toContain(`**${MapSlug.Train}** : `);
+			}
+		});
+
+		it("shows a maximum 5 streams for an embed", async () => {
+			const mockData: Partial<FullMatch> = {
+				streams: [
+					{ name: "Centimia", link: "washingtonpost.com", viewers: 1000 },
+					{ name: "Mymm", link: "de.vu", viewers: 900 },
+					{ name: "Babbleblab", link: "macromedia.com", viewers: 800 },
+					{ name: "Thoughtbeat", link: "tamu.edu", viewers: 700 },
+					{ name: "Gigazoom", link: "bing.com", viewers: 600 },
+					{ name: "Yata", link: "nsw.gov.au", viewers: 500 },
+					{ name: "Aibox", link: "technorati.com", viewers: 400 },
+				]
+			}
+
+			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockData));
+
+			const embeds = await Live();
+
+			const streams = embeds[0].fields && embeds[0].fields.find((field) => field.name.toLowerCase() === "streams");
+
+			if (streams) {
+				const viewableStreams = ["Centimia", "Mymm", "Babbleblab", "Thoughtbeat", "Gigazoom"];
+				const hiddenStreams = ["Yata", "Aibox"];
+
+				viewableStreams.forEach((streamName) => expect(streams.value).toContain(streamName));
+				hiddenStreams.forEach((streamName) => expect(streams.value).not.toContain(streamName));
 			}
 		});
 	})

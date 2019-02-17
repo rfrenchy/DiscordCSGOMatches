@@ -70,11 +70,17 @@ const streams = (matchStreams: Stream[]): string => {
 	const CUT_OFF_LENGTH = MAX_STREAM_NAME_LENGTH - CUT_OFF_TEXT.length;
 	const NO_STREAM_DEFAULT_TEXT = "💩 no streams...";
 
-	if (matchStreams.length === 0) {
+	let streams = matchStreams;
+
+	if (streams.length === 0) {
 		return NO_STREAM_DEFAULT_TEXT;
 	}
 
-	return matchStreams
+	if (streams.length > 5) {
+		streams = streams.slice(0, 5);
+	}
+
+	return streams
 		.reduce((textSegment, stream) => {
 			// Have to do some extra logic in order to get the correct url for hltv.
 			const link = stream.name.toUpperCase() !== "HLTV LIVE" ? stream.link : HLTV_URL.concat(stream.link);
