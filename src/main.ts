@@ -5,6 +5,7 @@ import Redis from "redis";
 
 import { createInfo } from "./commands/info/Info";
 import { Live } from "./commands/live/Live";
+import { Upcoming } from "./commands/upcoming/Upcoming";
 
 require('dotenv').config();
 
@@ -21,6 +22,8 @@ redisClient.on('connect', function () {
 
 const LIVE_REGEX = /!live/gmi;
 const INFO_REGEX = /!info/gmi;
+const UPCOMING_REGEX = /!upcoming/gmi;
+
 
 export interface ILiveMatch extends FullMatch {
 	stars: number;
@@ -50,6 +53,14 @@ discordClient.on("message", async (message) => {
 			}
 
 			return;
+		}
+
+		else if (UPCOMING_REGEX.test(message.content)) {
+			message.channel.send("Getting upcoming matches...");
+
+			const upcomingEmbeds = await new Upcoming().execute();
+
+			upcomingEmbeds.forEach((embed) => message.channel.send(embed));
 		}
 
 		else if (INFO_REGEX) {
