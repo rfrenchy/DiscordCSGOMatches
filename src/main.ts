@@ -20,9 +20,9 @@ redisClient.on('connect', function () {
 	console.log('Connected to Redis...');
 });
 
-const LIVE_REGEX = /!live/gmi;
-const INFO_REGEX = /!info/gmi;
-const UPCOMING_REGEX = /!upcoming/gmi;
+const LIVE_REGEX = /!live/mi;
+const INFO_REGEX = /!info/mi;
+const UPCOMING_REGEX = /!upcoming/mi;
 
 
 export interface ILiveMatch extends FullMatch {
