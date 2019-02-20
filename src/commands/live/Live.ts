@@ -9,9 +9,9 @@ import Stream from "hltv/lib/models/Stream";
 const STAR_EMOJI = "⭐";
 const TROPHY_EMOJI = "🏆";
 
-const GRAND_FINAL_REGEX = /Grand Final/gmi;
+const GRAND_FINAL_REGEX = /Grand Final/gim;
 const HLTV_URL = "https://www.hltv.org/";
-const NO_MATCHES_DEFAULT_MESSAGE = "😥 No Matches are currently being played."
+const NO_MATCHES_DEFAULT_MESSAGE = "😥 No Matches are currently being played.";
 
 const usageText = ``;
 
@@ -20,7 +20,7 @@ const keyword = "!live";
 export const Live = async (): Promise<RichEmbed[]> => {
 	const liveMatches = await getLiveMatches();
 
-	const embeds = liveMatches.map((liveMatch) => {
+	const embeds = liveMatches.map(liveMatch => {
 		const embed = new RichEmbed()
 			.setDescription(description(liveMatch))
 			.setTimestamp(new Date(liveMatch.date))
@@ -35,34 +35,29 @@ export const Live = async (): Promise<RichEmbed[]> => {
 	});
 
 	return embeds || [];
-}
+};
 
 const author = (match: ILiveMatch): string => {
 	const team1Name = (match.team1 && match.team1.name) || "Unknown";
 	const team2Name = (match.team2 && match.team2.name) || "Unknown";
 
 	const prefix = GRAND_FINAL_REGEX.test(match.additionalInfo) ? TROPHY_EMOJI + " " : "";
-	const suffix = STAR_EMOJI.repeat(match.stars)
+	const suffix = STAR_EMOJI.repeat(match.stars);
 
-	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`
-}
+	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`;
+};
 
 const description = (match: ILiveMatch): string => {
-	const matchBracket = match.additionalInfo ?
-		`_${match.additionalInfo.replace("*", "")}_\n\n` :
-		"\n"
+	const matchBracket = match.additionalInfo ? `_${match.additionalInfo.replace("*", "")}_\n\n` : "\n";
 
-	const description =
-		`\n\n**${match.event && match.event.name}**\n`
-			.concat(matchBracket)
-			.concat("\n\n")
+	const description = `\n\n**${match.event && match.event.name}**\n`.concat(matchBracket).concat("\n\n");
 
 	return description;
-}
+};
 
 const maps = (mapResult: MapResult[]): string => {
 	return mapResult.reduce((text, map) => text.concat(`**${map.name}** : ${map.result}\n`), "");
-}
+};
 
 const streams = (matchStreams: Stream[]): string => {
 	const MAX_STREAM_NAME_LENGTH = 25;
@@ -80,30 +75,33 @@ const streams = (matchStreams: Stream[]): string => {
 		streams = streams.slice(0, 5);
 	}
 
-	return streams
-		.reduce((textSegment, stream) => {
-			// Have to do some extra logic in order to get the correct url for hltv.
-			const link = stream.name.toUpperCase() !== "HLTV LIVE" ? stream.link : HLTV_URL.concat(stream.link);
+	return streams.reduce((textSegment, stream) => {
+		// Have to do some extra logic in order to get the correct url for hltv.
+		const link = stream.name.toUpperCase() !== "HLTV LIVE" ? stream.link : HLTV_URL.concat(stream.link);
 
-			let streamName = stream.name;
+		let streamName = stream.name;
 
-			if (streamName.length >= MAX_STREAM_NAME_LENGTH) {
-				streamName = streamName.substr(0, CUT_OFF_LENGTH).concat("...");
-			}
+		if (streamName.length >= MAX_STREAM_NAME_LENGTH) {
+			streamName = streamName.substr(0, CUT_OFF_LENGTH).concat("...");
+		}
 
-			return textSegment.concat(`[${streamName}](${link})\n`);
-		}, "")
-}
+		return textSegment.concat(`[${streamName}](${link})\n`);
+	}, "");
+};
 
 const getLiveMatches = async (): Promise<ILiveMatch[]> => {
 	const matches = await HLTV.getMatches();
-	const liveMatches = await Promise.all(matches
-		.filter((match) => match.live)
-		.map(async (match) => {
-			const liveMatch = await HLTV.getMatch({ id: match.id });
+	const liveMatches = await Promise.all(
+		matches
+			.filter(match => match.live)
+			.map(async match => {
+				const liveMatch = await HLTV.getMatch({
+					id: match.id
+				});
 
-			return { stars: match.stars, ...liveMatch };
-		}));
+				return { stars: match.stars, ...liveMatch };
+			})
+	);
 
 	return liveMatches;
-}
+};

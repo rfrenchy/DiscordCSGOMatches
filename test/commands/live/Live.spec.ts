@@ -1,6 +1,6 @@
-import { Live } from "./Live";
+import { Live } from "../../../src/commands/live/Live";
 import { HLTV } from "hltv";
-import { ILiveMatch } from "../../main";
+import { ILiveMatch } from "../../../src/main";
 
 import LiveMatch from "hltv/lib/models/LiveMatch";
 import MapSlug from "hltv/lib/enums/MapSlug";
@@ -27,22 +27,27 @@ describe("A 'live' function", () => {
 		describe("with a title containing", () => {
 			it("'team1' vs 'team2'", async () => {
 				const mockLiveOptions: Partial<LiveMatch> = {
-					team1: { name: "Cloud9" }, team2: { name: "Faze" }
-				}
+					team1: { name: "Cloud9" },
+					team2: { name: "Faze" }
+				};
 
-				jest.spyOn(HLTV, "getMatches").mockResolvedValue([CreateMockLiveMatch(mockLiveOptions)]);
+				jest.spyOn(HLTV, "getMatches").mockResolvedValue([
+					CreateMockLiveMatch(mockLiveOptions)
+				]);
 				jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions));
 
 				const embeds = await Live();
 				const title = embeds[0].author && embeds[0].author.name;
 
-				expect(title).toContain("Cloud9 vs Faze")
+				expect(title).toContain("Cloud9 vs Faze");
 			});
 
 			it("the star rating of the match", async () => {
 				const mockLiveOptions: Partial<ILiveMatch> = {
-					team1: { name: "Cloud9" }, team2: { name: "Faze" }, stars: 5
-				}
+					team1: { name: "Cloud9" },
+					team2: { name: "Faze" },
+					stars: 5
+				};
 
 				jest.spyOn(HLTV, "getMatches").mockResolvedValue([MOCK_LIVE_MATCH]);
 				jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions));
@@ -50,24 +55,27 @@ describe("A 'live' function", () => {
 				const embeds = await Live();
 				const title = embeds[0].author && embeds[0].author.name;
 
-				expect(title).toContain("⭐⭐⭐⭐⭐")
+				expect(title).toContain("⭐⭐⭐⭐⭐");
 			});
-
-		})
+		});
 
 		it("with a maps field displaying the maps", async () => {
 			const mockData: Partial<FullMatch> = {
 				maps: [
 					{ name: MapSlug.Cache, result: "4:6" },
-					{ name: MapSlug.Cobblestone, result: "" },
+					{
+						name: MapSlug.Cobblestone,
+						result: ""
+					},
 					{ name: MapSlug.Train, result: "" }
 				]
-			}
+			};
 
 			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockData));
 
 			const embeds = await Live();
-			const mapField = embeds[0].fields && embeds[0].fields.find((field) => field.name.toLowerCase() === "maps");
+			const mapField =
+				embeds[0].fields && embeds[0].fields.find(field => field.name.toLowerCase() === "maps");
 
 			if (mapField) {
 				expect(mapField.name).toBe("Maps");
@@ -80,41 +88,70 @@ describe("A 'live' function", () => {
 		it("shows a maximum 5 streams for an embed", async () => {
 			const mockData: Partial<FullMatch> = {
 				streams: [
-					{ name: "Centimia", link: "washingtonpost.com", viewers: 1000 },
-					{ name: "Mymm", link: "de.vu", viewers: 900 },
-					{ name: "Babbleblab", link: "macromedia.com", viewers: 800 },
-					{ name: "Thoughtbeat", link: "tamu.edu", viewers: 700 },
-					{ name: "Gigazoom", link: "bing.com", viewers: 600 },
-					{ name: "Yata", link: "nsw.gov.au", viewers: 500 },
-					{ name: "Aibox", link: "technorati.com", viewers: 400 },
+					{
+						name: "Centimia",
+						link: "washingtonpost.com",
+						viewers: 1000
+					},
+					{
+						name: "Mymm",
+						link: "de.vu",
+						viewers: 900
+					},
+					{
+						name: "Babbleblab",
+						link: "macromedia.com",
+						viewers: 800
+					},
+					{
+						name: "Thoughtbeat",
+						link: "tamu.edu",
+						viewers: 700
+					},
+					{
+						name: "Gigazoom",
+						link: "bing.com",
+						viewers: 600
+					},
+					{
+						name: "Yata",
+						link: "nsw.gov.au",
+						viewers: 500
+					},
+					{
+						name: "Aibox",
+						link: "technorati.com",
+						viewers: 400
+					}
 				]
-			}
+			};
 
 			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockData));
 
 			const embeds = await Live();
 
-			const streams = embeds[0].fields && embeds[0].fields.find((field) => field.name.toLowerCase() === "streams");
+			const streams =
+				embeds[0].fields &&
+				embeds[0].fields.find(field => field.name.toLowerCase() === "streams");
 
 			if (streams) {
 				const viewableStreams = ["Centimia", "Mymm", "Babbleblab", "Thoughtbeat", "Gigazoom"];
 				const hiddenStreams = ["Yata", "Aibox"];
 
-				viewableStreams.forEach((streamName) => expect(streams.value).toContain(streamName));
-				hiddenStreams.forEach((streamName) => expect(streams.value).not.toContain(streamName));
+				viewableStreams.forEach(streamName => expect(streams.value).toContain(streamName));
+				hiddenStreams.forEach(streamName => expect(streams.value).not.toContain(streamName));
 			}
 		});
-	})
+	});
 });
-
 
 const CreateMockLiveMatch = (liveMatchOptions?: Partial<LiveMatch>): LiveMatch => {
 	return { ...MOCK_LIVE_MATCH, ...liveMatchOptions };
-}
+};
 
 const CreateMockFullMatch = (fullMatchOptions?: Partial<any>): any => {
 	return { ...MOCK_FULL_MATCH, ...fullMatchOptions };
-}
+};
 
 const MOCK_LIVE_MATCH: LiveMatch = {
 	id: 12345,
@@ -125,7 +162,7 @@ const MOCK_LIVE_MATCH: LiveMatch = {
 	maps: [MapSlug.Mirage, MapSlug.Overpass, MapSlug.Inferno],
 	stars: 5,
 	live: true
-}
+};
 
 const MOCK_FULL_MATCH: any = {
 	...MOCK_LIVE_MATCH,
@@ -135,4 +172,4 @@ const MOCK_FULL_MATCH: any = {
 	streams: [],
 	demos: [],
 	hasScorebot: true
-}
+};
