@@ -1,5 +1,3 @@
-
-
 export interface ICommand {
 	/**
 	 * Text explaining what the command is and how the command is used.
