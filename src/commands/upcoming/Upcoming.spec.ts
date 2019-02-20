@@ -18,17 +18,41 @@ describe("An 'Upcoming' command", () => {
 
 	const upcoming = new Upcoming();
 
+	const getMatchesSpy = jest.spyOn(HLTV, "getMatches");
+	const getMatchSpy = jest.spyOn(HLTV, "getMatch");
+
 	beforeEach(() => {
 		// Mock the current date to be fixed so the tests don't fail in the future.
 		mockdate.set(MOCK_CURRENT_DATE);
 	})
 
+	afterEach(() => {
+		getMatchSpy.mockReset();
+		getMatchesSpy.mockReset();
+	})
+
 	describe("returns a RichEmbed", () => {
+		it("with a title containing the teams playing", async () => {
+			getMatchesSpy.mockResolvedValueOnce([CreateMockUpcomingMatch({ date: MOCK_DATES[0] })]);
+
+			const fullMatch = CreateMockFullMatch({
+				team1: { name: "NiP" },
+				team2: { name: "ViCi" },
+				date: MOCK_DATES[0]
+			});
+
+			getMatchSpy.mockResolvedValueOnce(fullMatch);
+
+
+			const embeds = await upcoming.execute();
+
+			const title = embeds[0].author && embeds[0].author.name;
+
+			expect(title).toContain("NiP vs ViCi");
+		});
+
 		it("of all upcoming matches for the current day", async () => {
-
-			jest.spyOn(HLTV, "getMatches").mockResolvedValue(MOCK_DATES.map((date) => CreateMockUpcomingMatch({ date })));
-
-			const getMatchSpy = jest.spyOn(HLTV, "getMatch");
+			getMatchesSpy.mockResolvedValueOnce(MOCK_DATES.map((date) => CreateMockUpcomingMatch({ date })));
 
 			MOCK_DATES.forEach((date) => getMatchSpy.mockResolvedValueOnce(CreateMockFullMatch({ date })))
 
@@ -37,35 +61,14 @@ describe("An 'Upcoming' command", () => {
 			expect(embeds.length).toBe(2);
 		});
 
-		it("limited to a return a maximum of 5 matches at once", () => {
-
-		});
-
-		it("with a title containing the teams playing", async () => {
-			jest.spyOn(HLTV, "getMatches").mockResolvedValue([CreateMockUpcomingMatch({ date: MOCK_DATES[0] })]);
-
-			const fullMatch = CreateMockFullMatch({
-				team1: { name: "NiP" },
-				team2: { name: "ViCi" },
-				date: MOCK_DATES[0]
-			});
-
-			jest.spyOn(HLTV, "getMatch").mockResolvedValue(fullMatch);
-
-			const embeds = await upcoming.execute();
-			const title = embeds[0].author && embeds[0].author.name;
-
-			expect(title).toContain("NiP vs ViCi");
-		});
-
 		it("showing the start time of the match", async () => {
-			jest.spyOn(HLTV, "getMatches").mockResolvedValue([CreateMockUpcomingMatch({ date: MOCK_DATES[0] })]);
-			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch({ date: MOCK_DATES[0] }));
+			getMatchesSpy.mockResolvedValueOnce([CreateMockUpcomingMatch({ date: MOCK_DATES[0] })]);
+			getMatchSpy.mockResolvedValueOnce(CreateMockFullMatch({ date: MOCK_DATES[0] }));
 
 			const embeds = await upcoming.execute();
 			const description = embeds[0].description;
 
-			const expectedTimeMessage = `**Starts**: 1:00:00 PM *(in 5 minutes)*`
+			const expectedTimeMessage = `**Starts**: 13:00 *(in 5 minutes)*`
 
 			expect(description).toContain(expectedTimeMessage);
 		});

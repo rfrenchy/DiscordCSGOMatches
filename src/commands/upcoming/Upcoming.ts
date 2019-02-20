@@ -23,7 +23,7 @@ export class Upcoming implements ICommand {
 					const isToday = upcomingMatch.date && moment(upcomingMatch.date).diff(moment(), "days") === 0;
 					return isToday;
 				})
-				.slice(0, 5)
+
 
 			const detailedUpcomingMatches = await Promise.all(upcomingMatches.map(async (match) => await HLTV.getMatch({ id: match.id })));
 
@@ -49,7 +49,7 @@ export class Upcoming implements ICommand {
 	}
 
 	private startTime(match: FullMatch): string {
-		const startTime = moment(match.date).format("LTS");
+		const startTime = moment(match.date).format("HH:mm");
 		const timeUntil = moment(match.date).fromNow();
 
 		return `**Starts**: ${startTime} *(${timeUntil})*`;

@@ -1,7 +1,6 @@
 import UpcomingMatch from "hltv/lib/models/UpcomingMatch";
 import FullMatch from "hltv/lib/models/FullMatch";
 
-
 export const MOCK_DEFAULT_UPCOMING_MATCH: UpcomingMatch = {
 	id: 12335,
 	stars: 2,
@@ -21,9 +20,9 @@ export const MOCK_DEFAULT_FULL_MATCH: FullMatch = {
 }
 
 export const CreateMockUpcomingMatch = (options?: Partial<UpcomingMatch>): UpcomingMatch => {
-	return { ...MOCK_DEFAULT_UPCOMING_MATCH, ...options }
+	return Object.assign({}, { ...MOCK_DEFAULT_UPCOMING_MATCH, ...options });
 }
 
 export const CreateMockFullMatch = (options?: Partial<FullMatch>): FullMatch => {
-	return { ...MOCK_DEFAULT_FULL_MATCH, ...options }
+	return Object.assign({}, { ...MOCK_DEFAULT_FULL_MATCH, ...options });
 }
