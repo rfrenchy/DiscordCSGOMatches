@@ -1,4 +1,6 @@
 node_modules/
+coverage/
+.vscode/
 .env
 src/**/*.js
 src/**/*.spec.js
