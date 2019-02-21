@@ -1,6 +1,8 @@
-import { Live } from "../../../src/commands/live/Live";
+import { Live } from "./Live";
 import { HLTV } from "hltv";
-import { ILiveMatch } from "../../../src/main";
+import { ILiveMatch } from "../../main";
+import { MOCK_STREAMS } from "../../../test/MockStreamData";
+import { MOCK_LIVE_MATCH, CreateMockLiveMatch, CreateMockFullMatch } from "./MockLiveData";
 
 import LiveMatch from "hltv/lib/models/LiveMatch";
 import MapSlug from "hltv/lib/enums/MapSlug";
@@ -86,47 +88,7 @@ describe("A 'live' function", () => {
 		});
 
 		it("shows a maximum 5 streams for an embed", async () => {
-			const mockData: Partial<FullMatch> = {
-				streams: [
-					{
-						name: "Centimia",
-						link: "washingtonpost.com",
-						viewers: 1000
-					},
-					{
-						name: "Mymm",
-						link: "de.vu",
-						viewers: 900
-					},
-					{
-						name: "Babbleblab",
-						link: "macromedia.com",
-						viewers: 800
-					},
-					{
-						name: "Thoughtbeat",
-						link: "tamu.edu",
-						viewers: 700
-					},
-					{
-						name: "Gigazoom",
-						link: "bing.com",
-						viewers: 600
-					},
-					{
-						name: "Yata",
-						link: "nsw.gov.au",
-						viewers: 500
-					},
-					{
-						name: "Aibox",
-						link: "technorati.com",
-						viewers: 400
-					}
-				]
-			};
-
-			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockData));
+			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(MOCK_STREAMS));
 
 			const embeds = await Live();
 
@@ -144,32 +106,3 @@ describe("A 'live' function", () => {
 		});
 	});
 });
-
-const CreateMockLiveMatch = (liveMatchOptions?: Partial<LiveMatch>): LiveMatch => {
-	return { ...MOCK_LIVE_MATCH, ...liveMatchOptions };
-};
-
-const CreateMockFullMatch = (fullMatchOptions?: Partial<any>): any => {
-	return { ...MOCK_FULL_MATCH, ...fullMatchOptions };
-};
-
-const MOCK_LIVE_MATCH: LiveMatch = {
-	id: 12345,
-	team1: { name: "Cloud9" },
-	team2: { name: "Faze" },
-	format: "bo1",
-	event: { name: "Boston Major 2018" },
-	maps: [MapSlug.Mirage, MapSlug.Overpass, MapSlug.Inferno],
-	stars: 5,
-	live: true
-};
-
-const MOCK_FULL_MATCH: any = {
-	...MOCK_LIVE_MATCH,
-	maps: [{ name: MapSlug.Mirage, result: "win for Faze" }],
-	date: 1512312314,
-	additionalInfo: "Major Grand Final",
-	streams: [],
-	demos: [],
-	hasScorebot: true
-};

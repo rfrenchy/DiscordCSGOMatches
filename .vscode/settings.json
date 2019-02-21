@@ -2,5 +2,5 @@
 	"files.exclude": {
 		"node_modules/": true
 	},
-	"editor.rulers": [100]
+	"editor.rulers": [120]
 }

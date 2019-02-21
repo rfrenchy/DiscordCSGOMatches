@@ -5,9 +5,9 @@
   "main": "src/main.js",
   "scripts": {
     "start": "ts-node ./src/main.ts",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "prettier": "prettier --write \"src/**/*.ts\"",
+    "test": "jest --config ./config/jest.config.js",
+    "test:coverage": "jest --coverage --config ./config/jest.config.js",
+    "prettier": "prettier --config ./config/.prettierrc --write \"src/**/*.ts\"  \"test/**/*.ts\"",
     "precommit": "lint-staged"
   },
   "lint-staged": {
