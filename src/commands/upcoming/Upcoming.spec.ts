@@ -1,9 +1,9 @@
 import mockdate from "mockdate";
 
-import { Upcoming } from "./Upcoming";
 import { CreateMockFullMatch } from "./MockUpcomingData";
 import { MOCK_DATES } from "../../../test/MockDates";
 import { RichEmbed } from "discord.js";
+import { Upcoming } from "./Upcoming";
 
 describe("An 'Upcoming' command", () => {
 	const upcoming = new Upcoming();
