@@ -1,7 +1,6 @@
 // import { ICommand } from "../commands/ICommand";
 import { RichEmbed } from "discord.js";
 import { ILiveMatch } from "../../main";
-import { HLTV } from "hltv";
 
 import MapResult from "hltv/lib/models/MapResult";
 import Stream from "hltv/lib/models/Stream";
@@ -13,13 +12,7 @@ const GRAND_FINAL_REGEX = /Grand Final/gim;
 const HLTV_URL = "https://www.hltv.org/";
 const NO_MATCHES_DEFAULT_MESSAGE = "😥 No Matches are currently being played.";
 
-const usageText = ``;
-
-const keyword = "!live";
-
 export const Live = async (): Promise<RichEmbed[]> => {
-	const liveMatches = await getLiveMatches();
-
 	const embeds = liveMatches.map(liveMatch => {
 		const embed = new RichEmbed()
 			.setDescription(description(liveMatch))
@@ -87,21 +80,4 @@ const streams = (matchStreams: Stream[]): string => {
 
 		return textSegment.concat(`[${streamName}](${link})\n`);
 	}, "");
-};
-
-const getLiveMatches = async (): Promise<ILiveMatch[]> => {
-	const matches = await HLTV.getMatches();
-	const liveMatches = await Promise.all(
-		matches
-			.filter(match => match.live)
-			.map(async match => {
-				const liveMatch = await HLTV.getMatch({
-					id: match.id
-				});
-
-				return { stars: match.stars, ...liveMatch };
-			})
-	);
-
-	return liveMatches;
 };

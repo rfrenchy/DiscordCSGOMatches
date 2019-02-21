@@ -1,10 +1,13 @@
-export const createInfo = (): string => {
-	const info = `Available commands:
+export class Info {
+	public execute(): string {
+		const info = `Available commands:
 
-**!live** : display all live CSGO matches
-**!info** : display available commands
+		**!live**     : displays live CSGO matches
+		**!upcoming** : displays upcoming CSGO matches
+		**!info**     : displays available commands
 
-`;
+		`;
 
-	return info;
-};
+		return info;
+	}
+}
