@@ -1,7 +1,6 @@
 // import { ICommand } from "../commands/ICommand";
 import { RichEmbed } from "discord.js";
 import { ILiveMatch } from "../../main";
-import { HLTV } from "hltv";
 
 import MapResult from "hltv/lib/models/MapResult";
 import Stream from "hltv/lib/models/Stream";
@@ -13,29 +12,25 @@ const GRAND_FINAL_REGEX = /Grand Final/gim;
 const HLTV_URL = "https://www.hltv.org/";
 const NO_MATCHES_DEFAULT_MESSAGE = "😥 No Matches are currently being played.";
 
-const usageText = ``;
+export class Live {
+	public buildEmbed(match: ILiveMatch): RichEmbed | undefined {
+		if (!match) {
+			return;
+		}
 
-const keyword = "!live";
-
-export const Live = async (): Promise<RichEmbed[]> => {
-	const liveMatches = await getLiveMatches();
-
-	const embeds = liveMatches.map(liveMatch => {
 		const embed = new RichEmbed()
-			.setDescription(description(liveMatch))
-			.setTimestamp(new Date(liveMatch.date))
-			.setFooter("Started")
-			.setAuthor(author(liveMatch), "https://avatars2.githubusercontent.com/u/9454190?s=460&v=4");
+			.setAuthor(author(match))
+			.setDescription(description(match))
+			.setTimestamp(new Date(match.date))
+			.setFooter("Started");
 
-		embed.addField("Maps", maps(liveMatch.maps), true);
-		embed.addField("Streams", streams(liveMatch.streams), true);
+		embed.addField("Maps", maps(match.maps), true);
+		embed.addField("Streams", streams(match.streams), true);
 		embed.setColor("#EF6C00");
 
 		return embed;
-	});
-
-	return embeds || [];
-};
+	}
+}
 
 const author = (match: ILiveMatch): string => {
 	const team1Name = (match.team1 && match.team1.name) || "Unknown";
@@ -44,7 +39,7 @@ const author = (match: ILiveMatch): string => {
 	const prefix = GRAND_FINAL_REGEX.test(match.additionalInfo) ? TROPHY_EMOJI + " " : "";
 	const suffix = STAR_EMOJI.repeat(match.stars);
 
-	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`;
+	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`.trimRight();
 };
 
 const description = (match: ILiveMatch): string => {
@@ -87,21 +82,4 @@ const streams = (matchStreams: Stream[]): string => {
 
 		return textSegment.concat(`[${streamName}](${link})\n`);
 	}, "");
-};
-
-const getLiveMatches = async (): Promise<ILiveMatch[]> => {
-	const matches = await HLTV.getMatches();
-	const liveMatches = await Promise.all(
-		matches
-			.filter(match => match.live)
-			.map(async match => {
-				const liveMatch = await HLTV.getMatch({
-					id: match.id
-				});
-
-				return { stars: match.stars, ...liveMatch };
-			})
-	);
-
-	return liveMatches;
 };

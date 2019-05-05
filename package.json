@@ -5,15 +5,15 @@
   "main": "src/main.js",
   "scripts": {
     "start": "ts-node ./src/main.ts",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "prettier": "prettier --write \"src/**/*.ts\"",
+    "test": "jest --config ./config/jest.config.js",
+    "test:coverage": "jest --coverage --config ./config/jest.config.js",
+    "prettier": "prettier --config ./config/.prettierrc --write \"src/**/*.ts\"  \"test/**/*.ts\"",
     "precommit": "lint-staged"
   },
   "lint-staged": {
     "*.ts": [
-        "npm run prettier",
-        "git add"
+      "npm run prettier",
+      "git add"
     ]
   },
   "repository": {
@@ -28,26 +28,29 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/moment": "^2.13.0",
     "discord.js": "^11.4.2",
     "dotenv": "^6.2.0",
     "hltv": "^2.12.2",
     "moment": "^2.24.0",
     "redis": "^2.8.0",
+    "rxjs": "^6.4.0",
     "ts-node": "^8.0.2"
   },
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/jest": "^24.0.4",
     "@types/mockdate": "^2.0.0",
+    "@types/moment": "^2.13.0",
     "@types/node": "^10.12.24",
     "@types/redis": "^2.8.10",
+    "@types/redis-mock": "^0.17.0",
     "chai": "^4.2.0",
     "husky": "^1.3.1",
     "jest": "^24.1.0",
     "lint-staged": "^8.1.4",
     "mockdate": "^2.0.2",
     "prettier": "^1.16.4",
+    "redis-mock": "^0.43.0",
     "ts-jest": "^23.10.5",
     "typescript": "^3.3.3"
   }
