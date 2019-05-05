@@ -11,11 +11,10 @@ describe("A MatchStorage class", () => {
 	describe("has a store method that", () => {
 		beforeAll(() => {});
 
-		// it("should return OK if it does not error", () => {
-		// 	const matches = [CreateMockFullMatch()];
-
-		// 	expect(storage.store(matches)).toBe(Status.OK);
-		// });
+		it("should return OK if it does not error", () => {
+			// const matches = [CreateMockFullMatch()];
+			// expect(storage.store(matches)).toBe(Status.OK);
+		});
 
 		// it("should return ERROR if it encounters any issues", () => {
 		// 	const matches = [CreateMockFullMatch()];

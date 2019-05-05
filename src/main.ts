@@ -1,29 +1,32 @@
 import Discord, { Message, RichEmbed } from "discord.js";
 import FullMatch from "hltv/lib/models/FullMatch";
-import Redis from "redis";
 
-import { createInfo } from "./commands/info/Info";
+// import { createInfo } from "./commands/info/Info";
 import { Live } from "./commands/live/Live";
 import { Upcoming } from "./commands/upcoming/Upcoming";
+import { Fetcher } from "./fetcher/fetcher";
+import { Info } from "./commands/info/Info";
 
 require("dotenv").config();
 
 const discordClient = new Discord.Client();
 
-const port = process.env.REDIS_PORT || "";
-const host = process.env.REDIS_HOST;
+// const port = process.env.REDIS_PORT || "";
+// const host = process.env.REDIS_HOST;
 
-const redisClient = Redis.createClient(parseInt(port), host, {
-	password: process.env.REDIS_PASSWORD
-});
+// const redisClient = Redis.createClient(parseInt(port), host, {
+// 	password: process.env.REDIS_PASSWORD
+// });
 
-redisClient.on("connect", function() {
-	console.log("Connected to Redis...");
-});
+// redisClient.on("connect", function() {
+// 	console.log("Connected to Redis...");
+// });
 
 const LIVE_REGEX = /!live/im;
 const INFO_REGEX = /!info/im;
 const UPCOMING_REGEX = /!upcoming/im;
+
+const fetcher = new Fetcher();
 
 export interface ILiveMatch extends FullMatch {
 	stars: number;
@@ -38,11 +41,16 @@ discordClient.on("message", async message => {
 		return;
 	}
 
+	const info = new Info();
+
 	if (message.isMentioned(discordClient.user)) {
 		if (LIVE_REGEX.test(message.content)) {
 			message.channel.send("Getting live matches...");
 
-			const liveEmbeds = await Live();
+			const liveCommand = new Live();
+			const liveMatches = await fetcher.matches({ live: true });
+
+			const liveEmbeds = liveMatches.splice(0, 5).map(match => liveCommand.buildEmbed(match));
 
 			liveEmbeds.forEach(embed => message.channel.send(embed));
 
@@ -54,14 +62,22 @@ discordClient.on("message", async message => {
 		} else if (UPCOMING_REGEX.test(message.content)) {
 			message.channel.send("Getting upcoming matches...");
 
-			const upcomingEmbeds = await new Upcoming().execute();
+			const upcomingCommand = new Upcoming();
+			const upcomingMatches = await fetcher.matches({ live: false });
+
+			const upcomingEmbeds = upcomingMatches
+				.splice(0, 5)
+				.map(match => upcomingCommand.buildEmbed(match));
 
 			upcomingEmbeds.forEach(embed => message.channel.send(embed));
+
+			if (upcomingEmbeds.length === 0) {
+				message.channel.send("There are currently no upcoming matches");
+			}
 		} else if (INFO_REGEX) {
-			message.channel.send(createInfo());
+			message.channel.send(info.execute());
 		} else {
-			message.channel.send("Unrecognised command");
-			message.channel.send(createInfo());
+			message.channel.send("Unrecognised command. Type !info for a list of available commands.");
 		}
 	}
 });

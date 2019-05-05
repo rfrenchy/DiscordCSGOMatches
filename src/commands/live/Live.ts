@@ -18,7 +18,15 @@ export class Live {
 			return;
 		}
 
-		const embed = new RichEmbed().setAuthor(author(match));
+		const embed = new RichEmbed()
+			.setAuthor(author(match))
+			.setDescription(description(match))
+			.setTimestamp(new Date(match.date))
+			.setFooter("Started");
+
+		embed.addField("Maps", maps(match.maps), true);
+		embed.addField("Streams", streams(match.streams), true);
+		embed.setColor("#EF6C00");
 
 		return embed;
 	}

@@ -1,5 +1,5 @@
 import { CreateMockUpcomingMatch, CreateMockFullMatch } from "../../src/commands/upcoming/MockUpcomingData";
-import { Fetcher } from "./Fetcher";
+import { Fetcher } from "./fetcher";
 import { HLTV } from "hltv";
 import { TEAM_NAMES } from "../../test/MockTeamNames";
 
@@ -7,7 +7,6 @@ describe("a fetcher", () => {
 	const fetcher = new Fetcher();
 
 	describe("has a matches method that", () => {
-		// Spy on network requests as we don't want api calls to outside locations during testing.
 		const getMatchesSpy = jest.spyOn(HLTV, "getMatches");
 		const getMatchSpy = jest.spyOn(HLTV, "getMatch");
 

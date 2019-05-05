@@ -93,22 +93,6 @@ describe("A 'Live' command", () => {
 							expect(createEmbedWithStars(5)).toContain("⭐⭐⭐⭐⭐");
 						});
 					});
-
-					describe("with a prefix that", () => {
-						const createEmbedWithAdditionalInfo = (additionalInfo: string) => {
-							const match = CreateMockFullMatch({ additionalInfo });
-							const embed = live.buildEmbed(match);
-							const name = embed && embed.author && embed.author.name;
-
-							return name || "";
-						};
-
-						it("should be a trophy emoji if the additionalInfo contains 'grand final'", () => {
-							expect(createEmbedWithAdditionalInfo("Grand Final")).toContain(
-								"🏆"
-							);
-						});
-					});
 				});
 			});
 		});

@@ -16,6 +16,14 @@ export class Fetcher {
 			const matches = await getMatches();
 			const detailedMatches = await this.fullMatchDetails(matches);
 
+			if (options.live) {
+				return detailedMatches.filter(match => match.live);
+			}
+
+			if (!options.live) {
+				return detailedMatches.filter(match => !match.live);
+			}
+
 			return detailedMatches;
 		} catch {
 			return [];
@@ -23,7 +31,6 @@ export class Fetcher {
 	}
 
 	private async fullMatchDetails(matches: (UpcomingMatch | LiveMatch)[]): Promise<ILiveMatch[]> {
-		// Change return type to not ILIVEMATCH, isn't necessarily live
 		const fullMatches = await Promise.all(
 			matches.map(async match => {
 				return { stars: match.stars, ...(await HLTV.getMatch({ id: match.id })) };
