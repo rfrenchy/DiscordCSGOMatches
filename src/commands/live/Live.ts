@@ -12,23 +12,17 @@ const GRAND_FINAL_REGEX = /Grand Final/gim;
 const HLTV_URL = "https://www.hltv.org/";
 const NO_MATCHES_DEFAULT_MESSAGE = "😥 No Matches are currently being played.";
 
-export const Live = async (): Promise<RichEmbed[]> => {
-	const embeds = liveMatches.map(liveMatch => {
-		const embed = new RichEmbed()
-			.setDescription(description(liveMatch))
-			.setTimestamp(new Date(liveMatch.date))
-			.setFooter("Started")
-			.setAuthor(author(liveMatch), "https://avatars2.githubusercontent.com/u/9454190?s=460&v=4");
+export class Live {
+	public buildEmbed(match: ILiveMatch): RichEmbed | undefined {
+		if (!match) {
+			return;
+		}
 
-		embed.addField("Maps", maps(liveMatch.maps), true);
-		embed.addField("Streams", streams(liveMatch.streams), true);
-		embed.setColor("#EF6C00");
+		const embed = new RichEmbed().setAuthor(author(match));
 
 		return embed;
-	});
-
-	return embeds || [];
-};
+	}
+}
 
 const author = (match: ILiveMatch): string => {
 	const team1Name = (match.team1 && match.team1.name) || "Unknown";
@@ -37,7 +31,7 @@ const author = (match: ILiveMatch): string => {
 	const prefix = GRAND_FINAL_REGEX.test(match.additionalInfo) ? TROPHY_EMOJI + " " : "";
 	const suffix = STAR_EMOJI.repeat(match.stars);
 
-	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`;
+	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`.trimRight();
 };
 
 const description = (match: ILiveMatch): string => {

@@ -1,108 +1,116 @@
+import { CreateMockFullMatch } from "./MockLiveData";
 import { Live } from "./Live";
-import { HLTV } from "hltv";
-import { ILiveMatch } from "../../main";
-import { MOCK_STREAMS } from "../../../test/MockStreamData";
-import { MOCK_LIVE_MATCH, CreateMockLiveMatch, CreateMockFullMatch } from "./MockLiveData";
+import { RichEmbed } from "discord.js";
 
-import LiveMatch from "hltv/lib/models/LiveMatch";
-import MapSlug from "hltv/lib/enums/MapSlug";
-import FullMatch from "hltv/lib/models/FullMatch";
+describe("A 'Live' command", () => {
+	const live = new Live();
 
-describe("A 'live' function", () => {
-	it("yes", () => {});
-	// describe("returns a RichEmbed", () => {
-	// 	it("for each live match", async () => {
-	// 		const matchAmount = 3;
-	// 		const mockMatches = [];
+	describe("has a buildEmbed method that", () => {
+		it("should return undefined if not supplied with a match", () => {
+			expect(live.buildEmbed(null as any)).toBe(undefined);
+		});
 
-	// 		for (let i = 0; i < matchAmount; i++) {
-	// 			mockMatches.push(CreateMockLiveMatch());
-	// 		}
+		describe("when supplied with a match", () => {
+			it("should return a RichEmbed", () => {
+				expect(live.buildEmbed(CreateMockFullMatch())).toBeInstanceOf(RichEmbed);
+			});
 
-	// 		jest.spyOn(HLTV, "getMatches").mockResolvedValue(mockMatches);
-	// 		jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch());
+			describe("the returned RichEmbed", () => {
+				describe("has an author section", () => {
+					describe("with a main title that", () => {
+						const createEmbedWithTeamNames = (name1: string, name2: string) => {
+							const match = CreateMockFullMatch({
+								team1: { name: name1 },
+								team2: { name: name2 }
+							});
+							const embed = live.buildEmbed(match);
 
-	// 		const embeds = await Live();
+							return embed && embed.author && embed.author.name;
+						};
 
-	// 		expect(embeds.length).toBe(3);
-	// 	});
+						it.each`
+							team1       | team2     | result
+							${"Cloud9"} | ${"Faze"} | ${"Cloud9 vs Faze"}
+							${""}       | ${"Faze"} | ${"Unknown vs Faze"}
+							${"Cloud9"} | ${""}     | ${"Cloud9 vs Unknown"}
+							${""}       | ${""}     | ${"Unknown vs Unknown"}
+						`(
+							"should have $result when teams are: $team1 and $team2",
+							({ team1, team2, result }) => {
+								expect(
+									createEmbedWithTeamNames(team1, team2)
+								).toContain(result);
+							}
+						);
 
-	// 	describe("with a title containing", () => {
-	// 		it("'team1' vs 'team2'", async () => {
-	// 			const mockLiveOptions: Partial<LiveMatch> = {
-	// 				team1: { name: "Cloud9" },
-	// 				team2: { name: "Faze" }
-	// 			};
+						it("should show 'team1' vs 'team2' if both team names are provided", () => {
+							expect(createEmbedWithTeamNames("Cloud9", "Faze")).toContain(
+								"Cloud9 vs Faze"
+							);
+						});
 
-	// 			jest.spyOn(HLTV, "getMatches").mockResolvedValue([
-	// 				CreateMockLiveMatch(mockLiveOptions)
-	// 			]);
-	// 			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions));
+						it("should show unknown vs 'team2' if the first team name is not provided", () => {
+							expect(createEmbedWithTeamNames("", "Faze")).toContain(
+								"Unknown vs Faze"
+							);
+						});
 
-	// 			const embeds = await Live();
-	// 			const title = embeds[0].author && embeds[0].author.name;
+						it("should 'team1' vs unknown if the second team name is not provided", () => {
+							expect(createEmbedWithTeamNames("Cloud9", "")).toContain(
+								"Cloud9 vs Unknown"
+							);
+						});
 
-	// 			expect(title).toContain("Cloud9 vs Faze");
-	// 		});
+						it("unknown vs unknown if no team names are provided", () => {
+							expect(createEmbedWithTeamNames("", "")).toContain(
+								"Unknown vs Unknown"
+							);
+						});
+					});
 
-	// 		it("the star rating of the match", async () => {
-	// 			const mockLiveOptions: Partial<ILiveMatch> = {
-	// 				team1: { name: "Cloud9" },
-	// 				team2: { name: "Faze" },
-	// 				stars: 5
-	// 			};
+					describe("with a stars suffix that", () => {
+						const createEmbedWithStars = (stars: number) => {
+							const match = CreateMockFullMatch({ stars });
+							const embed = live.buildEmbed(match);
+							const name = embed && embed.author && embed.author.name;
 
-	// 			jest.spyOn(HLTV, "getMatches").mockResolvedValue([MOCK_LIVE_MATCH]);
-	// 			jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockLiveOptions));
+							return name || "";
+						};
 
-	// 			const embeds = await Live();
-	// 			const title = embeds[0].author && embeds[0].author.name;
+						it("should have 0 stars if the match has no stars", () => {
+							expect(createEmbedWithStars(0)).not.toContain("⭐");
+						});
 
-	// 			expect(title).toContain("⭐⭐⭐⭐⭐");
-	// 		});
-	// 	});
+						it("should have 1 stars if the match has 1 star", () => {
+							expect(createEmbedWithStars(1)).toContain("⭐");
+						});
 
-	// 	it("with a maps field displaying the maps", async () => {
-	// 		const mockData: Partial<FullMatch> = {
-	// 			maps: [
-	// 				{ name: MapSlug.Cache, result: "4:6" },
-	// 				{
-	// 					name: MapSlug.Cobblestone,
-	// 					result: ""
-	// 				},
-	// 				{ name: MapSlug.Train, result: "" }
-	// 			]
-	// 		};
+						it("should have 2 stars if the match has 2 star", () => {
+							expect(createEmbedWithStars(2)).toContain("⭐⭐");
+						});
 
-	// 		jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(mockData));
+						it("should have 5 stars if the match has 5 star", () => {
+							expect(createEmbedWithStars(5)).toContain("⭐⭐⭐⭐⭐");
+						});
+					});
 
-	// 		const embeds = await Live();
-	// 		const mapField =
-	// 			embeds[0].fields && embeds[0].fields.find(field => field.name.toLowerCase() === "maps");
+					describe("with a prefix that", () => {
+						const createEmbedWithAdditionalInfo = (additionalInfo: string) => {
+							const match = CreateMockFullMatch({ additionalInfo });
+							const embed = live.buildEmbed(match);
+							const name = embed && embed.author && embed.author.name;
 
-	// 		if (mapField) {
-	// 			expect(mapField.name).toBe("Maps");
-	// 			expect(mapField.value).toContain(`**${MapSlug.Cache}** : `);
-	// 			expect(mapField.value).toContain(`**${MapSlug.Cobblestone}** : `);
-	// 			expect(mapField.value).toContain(`**${MapSlug.Train}** : `);
-	// 		}
-	// 	});
+							return name || "";
+						};
 
-	// 	it("shows a maximum 5 streams for an embed", async () => {
-	// 		jest.spyOn(HLTV, "getMatch").mockResolvedValue(CreateMockFullMatch(MOCK_STREAMS));
-
-	// 		const embeds = await Live();
-
-	// 		const streams =
-	// 			embeds[0].fields &&
-	// 			embeds[0].fields.find(field => field.name.toLowerCase() === "streams");
-
-	// 		if (streams) {
-	// 			const viewableStreams = ["Centimia", "Mymm", "Babbleblab", "Thoughtbeat", "Gigazoom"];
-	// 			const hiddenStreams = ["Yata", "Aibox"];
-
-	// 			viewableStreams.forEach(streamName => expect(streams.value).toContain(streamName));
-	// 			hiddenStreams.forEach(streamName => expect(streams.value).not.toContain(streamName));
-	// 		}
-	// 	});
+						it("should be a trophy emoji if the additionalInfo contains 'grand final'", () => {
+							expect(createEmbedWithAdditionalInfo("Grand Final")).toContain(
+								"🏆"
+							);
+						});
+					});
+				});
+			});
+		});
+	});
 });

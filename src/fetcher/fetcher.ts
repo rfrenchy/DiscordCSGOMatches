@@ -7,6 +7,9 @@ interface IFetchOptions {
 	live?: boolean;
 }
 
+// Poll every minute.
+const POLL_RATE = 60000;
+
 export class Fetcher {
 	public async matches(options: IFetchOptions = {}): Promise<(ILiveMatch)[]> {
 		try {

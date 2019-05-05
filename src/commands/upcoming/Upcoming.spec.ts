@@ -4,22 +4,23 @@ import { CreateMockFullMatch } from "./MockUpcomingData";
 import { MOCK_DATES } from "../../../test/MockDates";
 import { RichEmbed } from "discord.js";
 import { Upcoming } from "./Upcoming";
+import moment = require("moment");
 
 describe("An 'Upcoming' command", () => {
 	const upcoming = new Upcoming();
 
-	describe("has a buildEmbed methods that", () => {
+	describe("has a buildEmbed method that", () => {
 		it("should return undefined if not supplied with a match", () => {
-			expect(upcoming.buildEmbed(undefined as any)).toEqual(undefined);
+			expect(upcoming.buildEmbed(undefined as any)).toBe(undefined);
 		});
 
-		it("should return a RichEmbed if supplied with a Full Match", () => {
+		it("should return a RichEmbed if supplied with match", () => {
 			expect(upcoming.buildEmbed(CreateMockFullMatch())).toBeInstanceOf(RichEmbed);
 		});
 
 		describe("returns a RichEmbed that", () => {
 			describe("has an 'author' section that", () => {
-				const createUpcomingEmbedWithTeamNames = (name1: string, name2: string) => {
+				const createEmbedWithTeamNames = (name1: string, name2: string) => {
 					const match = CreateMockFullMatch({
 						team1: { name: name1 },
 						team2: { name: name2 }
@@ -29,24 +30,13 @@ describe("An 'Upcoming' command", () => {
 					return embed && embed.author && embed.author.name;
 				};
 
-				it("should show 'team1' vs 'team2' if both team names are provided", () => {
-					expect(createUpcomingEmbedWithTeamNames("Cloud9", "Faze")).toBe(
-						"Cloud9 vs Faze"
-					);
-				});
-
-				it("should show unknown vs 'team2' if the first team name is not provided", () => {
-					expect(createUpcomingEmbedWithTeamNames("", "Faze")).toBe("Unknown vs Faze");
-				});
-
-				it("should 'team1' vs unknown if the second team name is not provided", () => {
-					expect(createUpcomingEmbedWithTeamNames("Cloud9", "")).toBe(
-						"Cloud9 vs Unknown"
-					);
-				});
-
-				it("unknown vs unknown if no team names are provided", () => {
-					expect(createUpcomingEmbedWithTeamNames("", "")).toBe("Unknown vs Unknown");
+				it.each([
+					["Cloud9", "Faze", "Cloud9 vs Faze"],
+					["", "Faze", "Unknown vs Faze"],
+					["Cloud9", "", "Cloud9 vs Unknown"],
+					["", "", "Unknown vs Unknown"]
+				])("should have $result when teams are: $team1 and $team2", (team1, team2, result) => {
+					expect(createEmbedWithTeamNames(team1, team2)).toContain(result);
 				});
 			});
 
@@ -57,9 +47,12 @@ describe("An 'Upcoming' command", () => {
 					return embed && embed.description;
 				};
 
+				const MOCK_CURRENT_DATE = "2019-02-17T12:55:10.985";
+				const FORMATTED_CURRENT_DATE = moment(MOCK_CURRENT_DATE);
+
 				beforeEach(() => {
 					// Mock the current date to be fixed so the tests don't fail in the future.
-					mockdate.set("2019-02-17T12:55:10.985");
+					mockdate.set(MOCK_CURRENT_DATE);
 				});
 
 				it("should contain a 'Start' label", () => {
@@ -78,21 +71,16 @@ describe("An 'Upcoming' command", () => {
 					expect(createEmbedWithDate(MOCK_DATES["Feb17:1300"])).toContain("13:00");
 				});
 
-				it("when the match starts within the hour should show how long until the match starts in minutes", () => {
-					expect(createEmbedWithDate(MOCK_DATES["Feb17:1300"])).toContain(
-						"*(in 5 minutes)*"
-					);
-				});
-
-				it("when the match starts within a day should show how long the match stars in hours", () => {
-					expect(createEmbedWithDate(MOCK_DATES["Feb17:1500"])).toContain(
-						"*(in 2 hours)*"
-					);
-				});
-
-				it("when the match starts within a week should show how long the match starts in days", () => {
-					expect(createEmbedWithDate(MOCK_DATES["Feb20"])).toContain("*(in 3 days)*");
-				});
+				it.each([
+					[MOCK_DATES["Feb17:1300"], "*(in 5 minutes)*"],
+					[MOCK_DATES["Feb17:1500"], "*(in 2 hours)*"],
+					[MOCK_DATES["Feb20"], "*(in 3 days)*"]
+				])(
+					`when the match starts $startTime and the current date is ${FORMATTED_CURRENT_DATE} the time until should display $timeUntil`,
+					(startTime, timeUntil) => {
+						expect(createEmbedWithDate(startTime)).toContain(timeUntil);
+					}
+				);
 			});
 		});
 	});

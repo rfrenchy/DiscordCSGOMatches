@@ -6,7 +6,7 @@ import { TEAM_NAMES } from "../../test/MockTeamNames";
 describe("a fetcher", () => {
 	const fetcher = new Fetcher();
 
-	describe("has a matches function that", () => {
+	describe("has a matches method that", () => {
 		// Spy on network requests as we don't want api calls to outside locations during testing.
 		const getMatchesSpy = jest.spyOn(HLTV, "getMatches");
 		const getMatchSpy = jest.spyOn(HLTV, "getMatch");
@@ -32,25 +32,13 @@ describe("a fetcher", () => {
 				);
 			};
 
-			it("should return one match if one match is found", async () => {
-				setupRequestSpies(1);
-				expect((await fetcher.matches()).length).toBe(1);
-			});
-
-			it("should return three matches if three matches are found", async () => {
-				setupRequestSpies(3);
-				expect((await fetcher.matches()).length).toBe(3);
-			});
-
-			it("should return ten matches if ten matches are found", async () => {
-				setupRequestSpies(10);
-				expect((await fetcher.matches()).length).toBe(10);
-			});
-
-			it("should return twenty matches if twenty matches are found", async () => {
-				setupRequestSpies(20);
-				expect((await fetcher.matches()).length).toBe(20);
-			});
+			it.each([[1, 1], [2, 2], [3, 3], [5, 5], [10, 10], [20, 20]])(
+				"should return all matches available",
+				async (matches, result) => {
+					setupRequestSpies(matches);
+					expect((await fetcher.matches()).length).toBe(result);
+				}
+			);
 		});
 	});
 });
