@@ -1,16 +1,15 @@
-// import { ICommand } from "../commands/ICommand";
 import { RichEmbed } from "discord.js";
-import { ILiveMatch } from "../../main";
-
+import { ILiveMatch } from "../../Main";
 import MapResult from "hltv/lib/models/MapResult";
 import Stream from "hltv/lib/models/Stream";
 
-const STAR_EMOJI = "⭐";
-const TROPHY_EMOJI = "🏆";
-
 const GRAND_FINAL_REGEX = /Grand Final/gim;
 const HLTV_URL = "https://www.hltv.org/";
-const NO_MATCHES_DEFAULT_MESSAGE = "😥 No Matches are currently being played.";
+
+const StreamOptions = {
+	maxNameLength: 25,
+	maxShown: 5
+};
 
 export class Live {
 	public buildEmbed(match: ILiveMatch): RichEmbed | undefined {
@@ -19,8 +18,8 @@ export class Live {
 		}
 
 		const embed = new RichEmbed()
-			.setAuthor(author(match))
-			.setDescription(description(match))
+			.setAuthor(CreateMatchHeading(match))
+			.setDescription(CreateMatchDescription(match))
 			.setTimestamp(new Date(match.date))
 			.setFooter("Started");
 
@@ -32,17 +31,17 @@ export class Live {
 	}
 }
 
-const author = (match: ILiveMatch): string => {
+const CreateMatchHeading = (match: ILiveMatch): string => {
 	const team1Name = (match.team1 && match.team1.name) || "Unknown";
 	const team2Name = (match.team2 && match.team2.name) || "Unknown";
 
-	const prefix = GRAND_FINAL_REGEX.test(match.additionalInfo) ? TROPHY_EMOJI + " " : "";
-	const suffix = STAR_EMOJI.repeat(match.stars);
+	const prefix = GRAND_FINAL_REGEX.test(match.additionalInfo) ? "🏆 " : "";
+	const suffix = "⭐".repeat(match.stars);
 
-	return `${prefix}${team1Name} vs ${team2Name} ${suffix}`.trimRight();
+	return `${prefix} ${team1Name} vs ${team2Name} ${suffix}`.trimRight();
 };
 
-const description = (match: ILiveMatch): string => {
+const CreateMatchDescription = (match: ILiveMatch): string => {
 	const matchBracket = match.additionalInfo ? `_${match.additionalInfo.replace("*", "")}_\n\n` : "\n";
 
 	const description = `\n\n**${match.event && match.event.name}**\n`.concat(matchBracket).concat("\n\n");
@@ -55,31 +54,29 @@ const maps = (mapResult: MapResult[]): string => {
 };
 
 const streams = (matchStreams: Stream[]): string => {
-	const MAX_STREAM_NAME_LENGTH = 25;
-	const CUT_OFF_TEXT = "...";
-	const CUT_OFF_LENGTH = MAX_STREAM_NAME_LENGTH - CUT_OFF_TEXT.length;
-	const NO_STREAM_DEFAULT_TEXT = "💩 no streams...";
-
 	let streams = matchStreams;
 
 	if (streams.length === 0) {
-		return NO_STREAM_DEFAULT_TEXT;
+		return "💩 no streams...";
 	}
 
-	if (streams.length > 5) {
-		streams = streams.slice(0, 5);
+	if (streams.length > StreamOptions.maxShown) {
+		return ConvertStreamInfoToText(streams.slice(0, StreamOptions.maxShown));
 	}
 
-	return streams.reduce((textSegment, stream) => {
-		// Have to do some extra logic in order to get the correct url for hltv.
+	return ConvertStreamInfoToText(streams);
+};
+
+const ConvertStreamInfoToText = (streams: Stream[]): string =>
+	streams.reduce((textSegment, stream) => {
+		// Have to do some extra logic in order to get the correct URL for HLTV.
 		const link = stream.name.toUpperCase() !== "HLTV LIVE" ? stream.link : HLTV_URL.concat(stream.link);
 
 		let streamName = stream.name;
 
-		if (streamName.length >= MAX_STREAM_NAME_LENGTH) {
-			streamName = streamName.substr(0, CUT_OFF_LENGTH).concat("...");
+		if (streamName.length >= StreamOptions.maxNameLength) {
+			streamName = streamName.substr(0, StreamOptions.maxNameLength - "...".length).concat("...");
 		}
 
 		return textSegment.concat(`[${streamName}](${link})\n`);
 	}, "");
-};

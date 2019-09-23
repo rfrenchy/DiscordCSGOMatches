@@ -1,6 +1,6 @@
 import UpcomingMatch from "hltv/lib/models/UpcomingMatch";
-import MapSlug from "hltv/lib/enums/MapSlug";
 import FullMatch from "hltv/lib/models/FullMatch";
+import MapSlug from "hltv/lib/enums/MapSlug";
 
 export const MOCK_DEFAULT_UPCOMING_MATCH: UpcomingMatch = {
 	id: 12335,

@@ -1,17 +1,17 @@
-import { ILiveMatch } from "../main";
+import { ILiveMatch } from "../../Main";
 import { HLTV } from "hltv";
 import UpcomingMatch from "hltv/lib/models/UpcomingMatch";
 import LiveMatch from "hltv/lib/models/LiveMatch";
 
-interface IFetchOptions {
+interface MatchOptions {
 	live?: boolean;
 }
 
 // Poll every minute.
 const POLL_RATE = 60000;
 
-export class Fetcher {
-	public async matches(options: IFetchOptions = {}): Promise<(ILiveMatch)[]> {
+export class MatchService {
+	public async matches(options: MatchOptions = {}): Promise<(ILiveMatch)[]> {
 		try {
 			const matches = await getMatches();
 			const detailedMatches = await this.fullMatchDetails(matches);

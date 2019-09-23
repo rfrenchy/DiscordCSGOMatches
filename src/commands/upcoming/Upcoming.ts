@@ -1,7 +1,7 @@
 import moment from "moment";
 import FullMatch from "hltv/lib/models/FullMatch";
-import Stream from "hltv/lib/models/Stream";
 import MapResult from "hltv/lib/models/MapResult";
+import Stream from "hltv/lib/models/Stream";
 
 import { RichEmbed } from "discord.js";
 
