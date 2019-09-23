@@ -1,10 +1,10 @@
-import { CreateMockUpcomingMatch, CreateMockFullMatch } from "../../src/commands/upcoming/MockUpcomingData";
-import { Fetcher } from "./fetcher";
+import { CreateMockUpcomingMatch, CreateMockFullMatch } from "../../Commands/upcoming/MockUpcomingData";
+import { MatchService } from "./MatchService";
 import { HLTV } from "hltv";
-import { TEAM_NAMES } from "../../test/MockTeamNames";
+import { TEAM_NAMES } from "../../../test/Common/MockTeamNames";
 
-describe("a fetcher", () => {
-	const fetcher = new Fetcher();
+describe("The MatchService", () => {
+	const matchService = new MatchService();
 
 	describe("has a matches method that", () => {
 		const getMatchesSpy = jest.spyOn(HLTV, "getMatches");
@@ -12,12 +12,12 @@ describe("a fetcher", () => {
 
 		it("returns an empty array if there are no matches", async () => {
 			getMatchesSpy.mockResolvedValueOnce([]);
-			expect((await fetcher.matches()).length).toBe(0);
+			expect((await matchService.matches()).length).toBe(0);
 		});
 
 		it("returns an empty array if the request errors", async () => {
 			getMatchSpy.mockRejectedValueOnce("borked");
-			expect((await fetcher.matches()).length).toBe(0);
+			expect((await matchService.matches()).length).toBe(0);
 		});
 
 		describe("when matches are retrieved", () => {
@@ -35,7 +35,7 @@ describe("a fetcher", () => {
 				"should return all matches available",
 				async (matches, result) => {
 					setupRequestSpies(matches);
-					expect((await fetcher.matches()).length).toBe(result);
+					expect((await matchService.matches()).length).toBe(result);
 				}
 			);
 		});

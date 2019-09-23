@@ -1,10 +1,10 @@
-import mockdate from "mockdate";
-
 import { CreateMockFullMatch } from "./MockUpcomingData";
-import { MOCK_DATES } from "../../../test/MockDates";
+import { MOCK_DATES } from "../../../test/Common/MockDates";
 import { RichEmbed } from "discord.js";
 import { Upcoming } from "./Upcoming";
-import moment = require("moment");
+
+import moment from "moment";
+import mockdate from "mockdate";
 
 describe("An 'Upcoming' command", () => {
 	const upcoming = new Upcoming();
